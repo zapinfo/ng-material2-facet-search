@@ -11,8 +11,7 @@ import { MediaObserver } from '@angular/flex-layout';
 	templateUrl: './ng-material2-facet-search.component.html',
 })
 export class NgMaterial2FacetSearchComponent implements OnInit {
-
-	@Input() source: Facet[];
+	private _source: Facet[];
 	@Input() placeholder = 'Filter Table...';
 	@Input() clearButtonText = 'Clear Filters';
 	@Input() clearButtonEnabled = true;
@@ -35,7 +34,14 @@ export class NgMaterial2FacetSearchComponent implements OnInit {
 		this.searchUpdated = new EventEmitter<Facet[]>();
 	}
 
-	ngOnInit() {
+	@Input()
+	set source(s: Facet[]) {
+		this._source = s;
+	}
+
+	get source(): Facet[] { return this._source; }
+
+	consumeSourceChanges(): void {
 		this.updateAvailableFacets();
 		this.selectedFacets = [];
 		_.each(_.filter(this.source, (facet) => facet && facet.values && _.isArray(facet.values)), (facet) => {
@@ -45,6 +51,10 @@ export class NgMaterial2FacetSearchComponent implements OnInit {
 		if (this.selectedFacets && _.isArray(this.selectedFacets) && this.selectedFacets.length > 0) {
 			this.emitSelectedEvent();
 		}
+	}
+
+	ngOnInit() {
+		this.consumeSourceChanges();
 	}
 
 	chipSelected(event: MatChipSelectionChange, facet: Facet): void {
